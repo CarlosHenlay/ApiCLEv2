@@ -10,25 +10,21 @@ class UsuarioSeeder extends Seeder
 {
     public function run(): void
     {
+        // Crear usuario administrador
         Usuario::create([
-            'usu_Nom' => 'Admin Principal',
-            'usu_Pas' => 'password123',
+            'usu_Nom' => 'admin',
+            'usu_Pas' => 'admin123',
             'usu_Clas' => 'Administrador',
-            'dom_Id' => 1
+            'dom_Id' => 1,
+        ]);
+        // Crear usuario control escolar
+        Usuario::create([
+            'usu_Nom' => 'control',
+            'usu_Pas' => 'control123',
+            'usu_Clas' => 'Control Escolar',
+            'dom_Id' => 2,
         ]);
 
-        Usuario::create([
-            'usu_Nom' => 'Profesor Juan',
-            'usu_Pas' => 'password123',
-            'usu_Clas' => 'Docente',
-            'dom_Id' => 2
-        ]);
-
-        Usuario::create([
-            'usu_Nom' => 'Coordinador María',
-            'usu_Pas' => 'password123',
-            'usu_Clas' => 'Coordinador',
-            'dom_Id' => 1
-        ]);
+    
     }
 }

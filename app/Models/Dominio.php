@@ -12,18 +12,14 @@ class Dominio extends Model
  
     protected $fillable = [ 
         'dom_Nom', 
+        'rol',
         'dom_Mat1', 
         'dom_Mat2', 
         'dom_Obs', 
-    ]; 
+    ];
  
     public function usuarios() 
     { 
         return $this->hasMany(Usuario::class, 'dom_Id'); 
-    } 
- 
-    public function usuariosAlumnos() 
-    { 
-        return $this->hasMany(UsuarioAlumno::class, 'dom_Id'); 
     } 
 }
