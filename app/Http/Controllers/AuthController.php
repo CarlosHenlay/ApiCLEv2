@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Usuario;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Hash; // ¡IMPORTANTE: Usar la fachada Hash!
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
@@ -18,7 +18,9 @@ class AuthController extends Controller
 
         $user = Usuario::with('dominio')->where('usu_Nom', $request->usu_Nom)->first();
 
-         if (!$user || $user->usu_Pas !== $request->password) {
+         // 🔑 MODIFICACIÓN CLAVE: Usar Hash::check() para comparar la contraseña ingresada
+         // (texto plano) con la contraseña almacenada (hasheada).
+         if (!$user || !Hash::check($request->password, $user->usu_Pas)) {
             return response()->json([
                 'success' => false,
                 'error' => 'Credenciales inválidas'
@@ -40,7 +42,8 @@ class AuthController extends Controller
             'success' => true,
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => config('jwt.ttl') * 60,
+            // Asegúrate de que config('jwt.ttl') existe y es el valor correcto para segundos
+            'expires_in' => config('jwt.ttl') * 60, 
             'user' => [
                 'id' => $user->usu_Id,
                 'nombre' => $user->usu_Nom,
@@ -54,6 +57,7 @@ class AuthController extends Controller
     public function logout()
     {
         try {
+            // Asegúrate de invalidar el token actual
             JWTAuth::invalidate(JWTAuth::getToken());
             
             return response()->json([
@@ -63,7 +67,8 @@ class AuthController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'error' => 'Error al cerrar sesión'
+                // Puede ser un error si el token ya expiró, pero aún así se considera logout.
+                'error' => 'Error al cerrar sesión o token ya inválido' 
             ], 500);
         }
     }
@@ -71,7 +76,8 @@ class AuthController extends Controller
     public function me()
     {
         try {
-            $user = JWTAuth::parseToken()->authenticate();
+            // Obtiene el usuario autenticado desde el token
+            $user = JWTAuth::parseToken()->authenticate(); 
             
             return response()->json([
                 'success' => true,
@@ -79,8 +85,9 @@ class AuthController extends Controller
                     'id' => $user->usu_Id,
                     'nombre' => $user->usu_Nom,
                     'clasificacion' => $user->usu_Clas,
-                    'rol' => $user->dominio->rol,
-                    'dominio' => $user->dominio->dom_Nom,
+                    // Asegura que la relación 'dominio' esté cargada
+                    'rol' => $user->dominio->rol ?? null, 
+                    'dominio' => $user->dominio->dom_Nom ?? null,
                 ]
             ]);
         } catch (\Exception $e) {
@@ -94,6 +101,7 @@ class AuthController extends Controller
     public function refresh()
     {
         try {
+            // Refresca el token actual y devuelve uno nuevo
             $token = JWTAuth::refresh(JWTAuth::getToken());
             
             return response()->json([

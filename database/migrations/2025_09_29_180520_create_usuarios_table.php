@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('usuarios', function (Blueprint $table) {
             $table->integer('usu_Id')->autoIncrement(); // ← Solo PRIMARY KEY aquí
             $table->string('usu_Nom', 60);
-            $table->string('usu_Pas', 30);
+            $table->string('usu_Pas', 255);
             $table->string('usu_Clas', 15);
             $table->integer('dom_Id'); // ← Solo integer normal, SIN autoIncrement()
             $table->timestamps();
